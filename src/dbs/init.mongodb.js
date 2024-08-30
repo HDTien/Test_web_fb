@@ -1,6 +1,13 @@
 const mongoose = require('mongoose')
 
-const connectString = `mongodb://localhost:27017/webFacebook`
+console.log(require('../configs/congif.mongdb'));
+
+
+const {db: {host,name,port}} = require('../configs/congif.mongdb')
+
+const connectString = `mongodb://${host}:${port}/${name}`
+
+// const connectString = `mongodb://localhost:27017/webFacebook`
 const { countConnect } =require ('../helpers/check.connect')
 
 
