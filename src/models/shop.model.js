@@ -1,12 +1,12 @@
 'use strict';
-const {model , Schema, Types}=request('mongoose');
+const {model , Schema, Types}=require('mongoose');
 const mongoose = require('mongoose'); // Erase if already required
-const { request } = require('../app');
+
 const DOCUMENT_NAME = 'Shop'; // The name of the collection
 const COLLECTION_NAME = 'shops'; // The name of the collection
 
 // Declare the Schema of the Mongo model
-var shopSchema = new mongoose.Schema({
+var shopSchema = new Schema({
     name:{
         type:String,
         trim:true,
@@ -16,6 +16,10 @@ var shopSchema = new mongoose.Schema({
         type:String,
         trim:true,
         unique:true,
+    },
+    password:{
+        type:String,
+        required:true,
     },
     Status:{
         type:String,
@@ -30,10 +34,7 @@ var shopSchema = new mongoose.Schema({
         type: Array,  
         default: []
     },
-    password:{
-        type:String,
-        required:true,
-    },
+    
 
 
 }, {

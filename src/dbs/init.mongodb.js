@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
-console.log(require('../configs/congif.mongdb'));
 
+// console.log(require('../configs/congif.mongdb'));
 
 const {db: {host,name,port}} = require('../configs/congif.mongdb')
 
