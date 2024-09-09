@@ -32,7 +32,7 @@ require('./dbs/init.mongodb')
 //         //  metadata : strCompress.repeat(100000)
 //     })
 // })
-app.use('/', require('./routess'))
+app.use('/', require('./routers'))
 // app.get('/hello/tien', ( req, res, next) => {
 //   const  strCompress ='hello world'
 //   return res.status(200).json({
