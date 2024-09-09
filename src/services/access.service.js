@@ -3,10 +3,12 @@
 const shopModel = require("../models/shop.model");
 const bcrypt = require('bcrypt')
 const crypto = require('node:crypto')
-const KeyTokenService = require("../services/keyToken.service")
 const {createTokenPair} = require('../auth/authUtils')
 const { getInfoData } = require('../utils');
+const {findByEmail}= require('./shop.service')
 const { BadRequestError,ConflictError } = require("../core/error.response");
+const KeyTokenService = require("./keyToken.service");
+const { console } = require("node:inspector");
 const RoleShop ={
     SHOP:'SHOP',
     WRITER:'WRITER',
@@ -15,6 +17,45 @@ const RoleShop ={
 }
 
 class AccessService { 
+
+    static logout = async (keyStore) => {
+    //1- check refreshToken used
+        const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+        console.log({delKey});
+        return delKey
+    }
+
+    static login = async({email, password, refreshToken = null}) => {
+        
+    //1- check email in dbs
+    const foundShop = await findByEmail({email})
+    if(!foundShop) throw new BadRequestError('Shop not registered!')
+    
+    //2- match password
+    const match = bcrypt.compare(password, foundShop.password)
+    if(!match) throw new AuthFailureError('Authentication error!')
+
+    // 3- create AT vs RT and save RT
+    const privateKey = crypto.randomBytes(64).toString('hex');
+    const publicKey = crypto.randomBytes(64).toString('hex');
+    
+    //4- generate tokens
+    const{_id: userId} = foundShop
+    const tokens = await createTokenPair({ userId: foundShop._id, email },  publicKey, privateKey)
+
+    await KeyTokenService.createKeyToken({
+        refreshToken: tokens.refreshToken,
+        privateKey, publicKey,userId
+
+    })
+
+        return{
+            shop :getInfoData({fileds:['_id','name','email'], object: foundShop}),
+            tokens
+              }
+    // 5- get data return login
+        
+    }
 
 
      
@@ -38,21 +79,7 @@ class AccessService {
             })
 
             if(newShop) {
-                //create privateKey, publicKey
-
-                //     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa',
-                //     {
-                       
-                //         modulusLength: 4096,  
-                //         publicKeyEncoding:  {
-                //             type :'pkcs1',  
-                //             format :'pem'
-                //         },
-                //         privateKeyEncoding: {
-                //             type :'pkcs1', 
-                //             format :'pem'
-                //         }
-                //     })
+           
 
                   const privateKey = crypto.randomBytes(64).toString('hex');
                    const publicKey = crypto.randomBytes(64).toString('hex');
@@ -60,13 +87,6 @@ class AccessService {
 
                 console.log({ privateKey, publicKey })  
 
-
-
-
-                    // const   publicKeyString = await  KeyTokenService.createKeyToken({ 
-                    //     userId: newShop._id, 
-                    //     publicKey 
-                    // })
 
                     const   keyStore = await  KeyTokenService.createKeyToken({ 
                         userId: newShop._id, 
@@ -82,12 +102,6 @@ class AccessService {
                                 status: 'error'
                         }
                     }
-               
-                           
-                    // const publicKeyObject = crypto.createPublicKey(publicKeyString)
-
-                    // console.log('publicObject:', publicKeyObject);
-                    
 
 
                      const tokens = await createTokenPair({ userId: newShop._id, email },  publicKey, privateKey)
@@ -105,13 +119,6 @@ class AccessService {
                 code :200,
                 metadata :null
              }
-        // } catch (error) { 
-        //     return {
-        //         code: 'xxx',
-        //         message : error.message,
-        //         status: 'error'
-        //     };  
-        // }
     }
 }
 module.exports= AccessService

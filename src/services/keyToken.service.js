@@ -1,22 +1,49 @@
 'use strict';
-// const { model } = require('mongoose');
 const keytokenModel = require('../models/keytoken.model')
+const  { ObjectId }  = require('mongodb')
+
+// const { Types: { ObjectId } } = require('mongoose')
 class KeyTokenService{
-    static createKeyToken = async ({ userId, publicKey,privateKey }) => {
+    static createKeyToken =     async ({ userId, publicKey,privateKey,refreshToken }) => {
         
         try {
-            // const publicKeyString = publicKey.toString();
-            const tokens = await keytokenModel.create({
-                    user: userId,
-                    // publicKey: publicKeyString
-                    publicKey,
-                     privateKey
-            })
+            //lv0
+            // const tokens = await keytokenModel.create({
+            //         user: userId,
+            //         // publicKey: publicKeyString
+            //         publicKey,
+            //          privateKey
+            // })
+            //lvxx
+            const filter ={user:userId },update ={
+                publicKey,privateKey,refreshTokensUsed: [],refreshToken
+            },opstions = {upsert:true,new:true}
+
+            const tokens = await keytokenModel.findOneAndUpdate(filter,update,opstions)
                 return tokens ? tokens.publicKey : null
 
         }catch (error) {
             return error
         }
+    }
+    // static findByUserId = async (userId) => {
+    //     console.log('userId',ObjectId.createFromHexString(userId));
+        
+    //     return await keytokenModel.findOne({ user:  ObjectId.createFromHexString(userId) }).lean()
+
+    // }
+    // static removeKeyById = async (id) => {
+    //     return await keytokenModel.deleteOne({ _id:  ObjectId.createFromHexString(id) })
+    // }
+
+    static findByUserId = async (userId) => {
+        
+        const objectId =  ObjectId.createFromHexString(userId)
+        
+        return await keytokenModel.findOne({ user: objectId }).lean();
+    }
+    static removeKeyById = async (id) => {
+        return await keytokenModel.deleteOne({ _id: id });
     }
 }
 
