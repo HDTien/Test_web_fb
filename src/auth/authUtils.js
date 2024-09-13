@@ -70,10 +70,20 @@ const  authentication =asyncHandler(async(req,res,next)=>{
     // 4- check user in db
     // 5- check key store with this userId
     // 6- OK all => return next()
-
      
 })
+const  verifyJWT = async (token, keySecret) => {
+    return await JWT.verify(token, keySecret)
+}
+// const verifyJWT = (token, keySecret) => {
+//     try {
+//         return JWT.verify(token, keySecret);
+//     } catch (error) {
+//         throw new Error('Invalid token');
+//     }
+// };
 module.exports = { 
     createTokenPair,
-    authentication
+    authentication,
+    verifyJWT
 }

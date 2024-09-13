@@ -26,15 +26,6 @@ class KeyTokenService{
             return error
         }
     }
-    // static findByUserId = async (userId) => {
-    //     console.log('userId',ObjectId.createFromHexString(userId));
-        
-    //     return await keytokenModel.findOne({ user:  ObjectId.createFromHexString(userId) }).lean()
-
-    // }
-    // static removeKeyById = async (id) => {
-    //     return await keytokenModel.deleteOne({ _id:  ObjectId.createFromHexString(id) })
-    // }
 
     static findByUserId = async (userId) => {
         
@@ -44,6 +35,15 @@ class KeyTokenService{
     }
     static removeKeyById = async (id) => {
         return await keytokenModel.deleteOne({ _id: id });
+    }
+    static findByRefreshTokenUsed = async (refreshToken) => {
+        return await keytokenModel.findOne({ refreshTokensUsed : refreshToken}).lean();
+    }
+    static findByRefreshToken = async (refreshToken) => {
+        return await keytokenModel.findOne({  refreshToken });
+    }
+    static deleteKeyById = async (userId) => {
+        return await keytokenModel.findByIdAndDelete({ user: userId })
     }
 }
 
